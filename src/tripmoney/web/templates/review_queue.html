@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block title %}Review{% endblock %}
+{% block body %}<h1>Review queue <span class="mute">({{ rows|length }})</span></h1>
+{% if counts %}<div class="card"><b>What is waiting</b><p class="help">Approve a whole group at once only when you have decided the rule applies to every page in it.</p>
+<table><tr><th>Warning</th><th class="num">Pages</th><th>What it means</th><th></th></tr>
+{% for code, n in counts %}<tr><td><a href="/review?flag={{ code }}"><span class="flag warn">{{ code }}</span></a></td><td class="num">{{ n }}</td>
+<td>{{ FLAG_HELP.get(code, '') }}</td><td>{% if code in ('UNPAIRED_20FT','RATE_UNVERIFIED','THIRD_PARTY_RECEIPT') %}
+<form method="post" action="/review/bulk"><input type="hidden" name="code" value="{{ code }}"><button class="secondary" title="Approves pages whose ONLY open warning is this one">Approve all</button></form>{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
+<form class="row" method="get" action="/review"><label style="margin:0">Driver</label>
+<select name="driver"><option value="">All</option>{% for d in drivers %}<option value="{{ d.id }}" {% if driver == d.id %}selected{% endif %}>{{ d.name or (d.key|mask) }}</option>{% endfor %}</select>
+{% if flag %}<input type="hidden" name="flag" value="{{ flag }}">{% endif %}<button class="secondary">Filter</button>{% if flag %} <a href="/review">clear {{ flag }}</a>{% endif %}</form>
+{% if rows %}<table style="margin-top:12px"><tr><th>#</th><th>Container</th><th>When</th><th>Driver</th><th>Customer</th><th>Open warnings</th><th></th></tr>
+{% for mv in rows %}<tr><td>{{ mv.id }}</td><td>{{ mv.container_no }}</td><td style="white-space:nowrap">{{ mv.occurred_at.strftime("%d %b %H:%M") if mv.occurred_at else "?" }}</td>
+<td>{{ (mv.driver.name or (mv.driver.key|mask)) if mv.driver else '' }}</td><td>{{ mv.customer }}</td>
+<td>{% for f in mv.flags if not f.resolved and f.severity != 'info' %}<span class="flag {{ f.severity }}">{{ f.code }}</span>{% endfor %}</td>
+<td><a class="btn secondary" href="/review/{{ mv.id }}{% if driver %}?driver={{ driver }}{% endif %}">Open</a></td></tr>{% endfor %}</table>
+{% else %}<div class="card ok">Nothing waiting for review.</div>{% endif %}
+{% if voided %}<h2>Voided pages <span class="mute">({{ voided|length }}): not paid, not exported</span></h2>
+<table><tr><th>#</th><th>Container</th><th>When</th><th>Driver</th><th></th></tr>
+{% for mv in voided %}<tr><td>{{ mv.id }}</td><td>{{ mv.container_no }}</td><td style="white-space:nowrap">{{ mv.occurred_at.strftime("%d %b %H:%M") if mv.occurred_at else "?" }}</td>
+<td>{{ (mv.driver.name or (mv.driver.key|mask)) if mv.driver else '' }}</td><td><a class="btn secondary" href="/review/{{ mv.id }}">Open</a></td></tr>{% endfor %}</table>{% endif %}
+<p><a class="btn secondary" href="/movements/new">Add a box by hand</a></p>{% endblock %}

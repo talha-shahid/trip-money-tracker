@@ -1,0 +1,65 @@
+# Known names. Matching ignores spaces/punctuation/case; the spelling below is what gets shown.
+# Add new customers, vessels and shipping lines here (the review screen also adds them as you correct pages).
+customer:
+- ARKAS
+- BARAQ AL LAMA LOGISTICS
+- CHINA UNITED
+- COSCO
+- DSV
+- FOLK LINE
+- KERRY
+- KERRY LOGISTICS
+- Logikserv
+- Maersk
+- MSC
+- MSK
+- OOCL
+- Salem Al-Saiary Est
+- Saudi Tianyuan
+- SAUDI TIANYUAN FOR FOOD INDUSTRIES LLC
+- TRANSMAR
+- TRIDENT FREIGHT SAUDI L L L C
+- UNIFEEDER
+- ZGL
+vessel:
+- CMA CGM TOSCA 037 E
+- CUL LEAMCHABANG
+- DANIEL A
+- DEPO STORAGE
+- Export Shipment
+- FOLK YANBU
+- KR TASMAN
+- MAERSK MOVMENT
+- MSC MARA
+- MSC SIENA
+- TRANSMAR LEGACY 18628
+- TRANSMAR LEGACY 18629
+- TS MANILA
+- XIN HAI KOU
+- XIN HAI KOU 342E
+- XPRESS ALTAIR
+- ZHONG GU 3
+- ZHONG GU NAN JING
+line:
+- Maersk
+- Kerry Logistics Arabia
+- Saudi Tianyuan
+- DSV
+- Folk Maritime Services Co
+- Transmar International
+- Triton-Trident
+- Baraq Al Lama Logistics
+- COSCO
+- ARKAS
+- MSC
+- China United
+- ZGL
+- OOCL
+- UNIFEEDER
+- Logikserv
+remark:
+- FULL BOX
+- FULL BOX/ MINOR
+- FULL / MINOR
+- FULL
+- MINOR WASHING DUSTY

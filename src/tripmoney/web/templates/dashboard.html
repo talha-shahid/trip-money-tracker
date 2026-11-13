@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% block title %}Dashboard{% endblock %}
+{% block body %}
+<h1>Pay period {{ period[0].strftime('%d %b %Y') }} to {{ period[1].strftime('%d %b %Y') }}</h1>
+<form class="row" method="get" action="/"><label style="margin:0">Period</label>
+<input name="period" value="{{ period_text }}" size="24"> <button class="secondary">Show</button>
+<span class="mute">e.g. 2026-10 or 2026-10-10:2026-11-09</span></form>
+<div class="kpis" style="margin-top:14px">
+<div class="kpi">Trips<b>{{ trips }}</b></div><div class="kpi">Amount{% if currency %} ({{ currency }}){% endif %}<b>{{ amount|money }}</b></div>
+<div class="kpi">Waiting for review<b>{% if pending %}<a href="/review">{{ pending }}</a>{% else %}0{% endif %}</b></div>
+<div class="kpi">Pages read<b>{{ pages }}</b></div></div>
+{% if blocks %}
+<table><tr><th>Driver</th><th>Truck</th><th class="num">Trips</th><th class="num">Amount</th><th class="num">To review</th><th class="num">Outside period</th><th>Trip sheet</th></tr>
+{% for b in blocks %}<tr><td>{{ b.driver.name or (b.driver.key|mask) }}</td><td>{{ b.truck }}</td><td class="num">{{ b.trips }}</td>
+<td class="num">{{ b.amount|money }}</td><td class="num">{% if b.to_review %}<a href="/trips?driver={{ b.driver.id }}&only_review=1&period={{ period_text }}">{{ b.to_review }}</a>{% else %}<span class="ok">0</span>{% endif %}</td>
+<td class="num">{{ b.excluded|length }}</td><td><a href="/export/driver/{{ b.driver.id }}.xlsx?period={{ period_text }}">Download Excel</a></td></tr>{% endfor %}
+<tr class="total"><td>Total</td><td></td><td class="num">{{ trips }}</td><td class="num">{{ amount|money }}</td><td></td><td></td>
+<td><a href="/export/summary.xlsx?period={{ period_text }}">Summary</a> · <a href="/export/trips.csv?period={{ period_text }}">CSV</a></td></tr></table>
+{% else %}<div class="card">No trips in this period yet. Upload a scanned driver pack below.</div>{% endif %}
+<h2>Upload scanned pages</h2>
+<form class="card row" method="post" action="/upload" enctype="multipart/form-data">
+<input type="file" name="files" accept="application/pdf" multiple required> <button>Read scans</button>
+<span class="mute">One PDF per driver. Reading takes a few seconds a page; progress is on the Uploads tab.</span></form>
+{% if jobs %}<h2>Recent uploads</h2><table><tr><th>File</th><th>Status</th><th>Result</th></tr>
+{% for j in jobs %}<tr><td>{{ j.filename }}</td><td>{{ j.status }}{% if j.status == 'running' %} {{ j.page }}/{{ j.total }}{% endif %}</td><td>{{ j.message }}</td></tr>{% endfor %}</table>{% endif %}
+{% endblock %}

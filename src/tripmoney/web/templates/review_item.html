@@ -1,0 +1,46 @@
+{% extends "base.html" %}{% block title %}Review #{{ mv.id }}{% endblock %}
+{% block body %}
+<div class="row"><h1 style="margin:0">{{ mv.container_no }}{{ mv.container_suffix or '' }}</h1>
+<span class="mute">#{{ mv.id }} · {{ queue_len }} in queue</span>
+<span style="margin-left:auto">{% if prev_id %}<a class="btn secondary" href="/review/{{ prev_id }}">&larr; Previous</a>{% endif %}
+{% if next_id %}<a class="btn secondary" href="/review/{{ next_id }}">Next &rarr;</a>{% endif %} <a class="btn secondary" href="/review">Queue</a></span></div>
+{% set good = {'saved': 'Saved.', 'voided': 'Voided: this page is no longer paid or exported.', 'restored': 'Restored.', 'added': 'Added by hand and approved.'} %}
+{% if msg %}<div class="msg {% if msg not in good %}bad{% endif %}" style="margin-top:10px">{{ good.get(msg, msg) }}</div>{% endif %}
+{% if mv.review_status == 'void' %}<div class="msg bad" style="margin-top:10px"><b>VOIDED.</b> This page is not paid, not exported and not in container history.
+<form method="post" action="/review/{{ mv.id }}/restore" style="display:inline"><button class="secondary" style="margin-left:12px">Restore it</button></form></div>{% endif %}
+<div class="grid2" style="margin-top:12px"><div>
+{% if doc and doc.image_path %}<a href="/pages/{{ doc.id }}.jpg" target="_blank"><img class="scan" src="/pages/{{ doc.id }}.jpg" alt="scanned page {{ doc.page_no }} of {{ doc.filename }}"></a>
+<p class="mute">{{ doc.filename }}, page {{ doc.page_no }} ({{ doc.doc_type }}). Click the image to open it full size.</p>
+{% else %}<div class="card mute">No scanned image stored for this movement.</div>{% endif %}</div>
+<div>
+<div class="card"><b>Warnings</b>
+{% for f in mv.flags if f.severity != 'info' or not f.resolved %}<div style="margin:6px 0"><span class="flag {{ f.severity }}" {% if f.resolved %}style="opacity:.45;text-decoration:line-through"{% endif %}>{{ f.code }}</span>
+<span class="mute">{{ f.message or FLAG_HELP.get(f.code, '') }}</span></div>{% else %}<p class="ok">No warnings.</p>{% endfor %}
+{% if mv.assignment %}<hr><b>Priced as</b>: {{ mv.assignment.route_code or 'not priced' }} · {{ mv.assignment.amount|money }}{% if currency %} {{ currency }}{% endif %}
+· trip {{ mv.assignment.trip_count }}{% if mv.assignment.pair_role %} ({{ mv.assignment.pair_role }} of pair){% endif %}{% endif %}
+<p class="mute">Status: <b>{{ mv.review_status }}</b>{% if mv.printed_at %} · printed {{ mv.printed_at.strftime('%d %b %H:%M') }}{% endif %}{% if mv.confidence %} · reading confidence {{ '%.2f'|format(mv.confidence) }}{% endif %}</p></div>
+{% if mv.review_status != 'void' %}<form class="card" method="post" action="/review/{{ mv.id }}"><div class="fields">
+<div><label>Container no</label><input type="text" name="container_no" value="{{ mv.container_no }}{{ mv.container_suffix or '' }}"></div>
+<div><label>Date / time</label><input type="datetime-local" name="occurred_at" value="{{ when }}"></div>
+<div><label>Direction</label><select name="direction"><option value=""></option>
+<option value="JIP-MLS" {% if mv.direction == 'JIP-MLS' %}selected{% endif %}>IN: port to depot (JIP-MLS)</option>
+<option value="MLS-JIP" {% if mv.direction == 'MLS-JIP' %}selected{% endif %}>OUT: depot to port (MLS-JIP)</option></select></div>
+<div><label>Empty / full</label><select name="status"><option value=""></option>
+<option value="EMPTY" {% if mv.status == 'EMPTY' %}selected{% endif %}>Empty</option><option value="FULL" {% if mv.status == 'FULL' %}selected{% endif %}>Full</option></select></div>
+<div><label>Size</label><select name="size_ft"><option value=""></option>{% for z in (20, 40, 45) %}<option value="{{ z }}" {% if mv.size_ft == z %}selected{% endif %}>{{ z }}'</option>{% endfor %}</select></div>
+<div><label>Type</label><select name="container_type">{% for t in types %}<option value="{{ t }}" {% if mv.container_type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+<div><label>Customer</label><input type="text" name="customer" value="{{ mv.customer }}"></div>
+<div><label>Shipping line</label><input type="text" name="shipping_line" value="{{ mv.shipping_line or '' }}"></div>
+<div><label>Vessel</label><input type="text" name="vessel" value="{{ mv.vessel }}"></div>
+<div><label>Booking no</label><input type="text" name="booking_no" value="{{ mv.booking_no }}"></div>
+<div><label>BL no</label><input type="text" name="bl_no" value="{{ mv.bl_no or '' }}"></div>
+<div><label>Seal no</label><input type="text" name="seal_no" value="{{ mv.seal_no or '' }}"></div>
+<div><label>Driver</label><select name="driver_id">{% for d in drivers %}<option value="{{ d.id }}" {% if mv.driver_id == d.id %}selected{% endif %}>{{ d.name or (d.key|mask) }}</option>{% endfor %}</select></div>
+<div><label>Truck</label><input type="text" name="truck" value="{{ mv.truck.plate if mv.truck else '' }}"></div>
+<div style="grid-column:1/3"><label>Remarks</label><input type="text" name="remarks" value="{{ mv.remarks or '' }}"></div></div>
+<div class="row" style="margin-top:14px"><button class="good" name="action" value="approve">Save &amp; approve{% if next_id %} → next{% endif %}</button>
+<button class="secondary" name="action" value="save">Save only</button></div></form>
+<form class="card row" method="post" action="/review/{{ mv.id }}/void"><b>Not a trip?</b>
+<input type="text" name="reason" placeholder="why, e.g. copy of an EIR already counted" style="flex:1;min-width:220px" required minlength="3">
+<button class="secondary" title="It will no longer be paid or exported. You can restore it later.">Void this page</button></form>{% endif %}</div></div>
+{% endblock %}

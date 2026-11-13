@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}{{ h.container_no }}{% endblock %}
+{% block body %}<h1>{{ h.container_no }} <span class="flag {{ 'st-ok' if h.current == 'IN DEPOT' else 'info' }}">{{ h.current }}</span></h1>
+{% for a in h.anomalies %}<div class="msg bad">{{ a }}</div>{% endfor %}
+<table><tr><th>When</th><th>Event</th><th>Empty/Full</th><th>Size</th><th>Customer</th><th>Vessel</th><th>EIR</th><th>Truck</th><th></th></tr>
+{% for e in h.events %}<tr><td>{{ e.when.strftime('%d %b %Y %H:%M') }}</td><td>{{ e.kind }}{% if e.note %} <span class="mute">({{ e.note }})</span>{% endif %}</td>
+<td>{{ (e.status or '')|title }}</td><td>{{ e.size_ft or '' }}</td><td>{{ e.customer }}</td><td>{{ e.vessel }}</td><td>{{ e.eir_no }}</td><td>{{ e.truck }}</td>
+<td><a href="/review/{{ e.movement_id }}">open</a></td></tr>{% endfor %}</table>
+{% if stays %}<h2>Stays in the depot</h2><table><tr><th>In</th><th>Out</th><th class="num">Days</th></tr>
+{% for i, o, days in stays %}<tr><td>{{ i.when.strftime('%d %b %Y %H:%M') }}</td><td>{{ o.when.strftime('%d %b %Y %H:%M') if o else 'still in depot' }}</td><td class="num">{{ '%.1f'|format(days) }}</td></tr>{% endfor %}</table>{% endif %}
+<p><a class="btn secondary" href="/containers">Back</a></p>{% endblock %}

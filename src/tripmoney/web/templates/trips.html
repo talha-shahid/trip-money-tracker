@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}Trips{% endblock %}
+{% block body %}<div class="row"><h1 style="margin:0">Trip log</h1><a class="btn secondary" href="/movements/new">Add a box by hand</a></div>
+<form class="row" method="get" action="/trips"><label style="margin:0">Driver</label>
+<select name="driver"><option value="">All</option>{% for d in drivers %}<option value="{{ d.id }}" {% if driver == d.id %}selected{% endif %}>{{ d.name or (d.key|mask) }}</option>{% endfor %}</select>
+<label style="margin:0">Period</label><input name="period" value="{{ period_text }}" size="24">
+<label style="margin:0"><input type="checkbox" name="only_review" value="1" {% if only_review %}checked{% endif %}> only rows to review</label><button class="secondary">Show</button></form>
+{% for d, rows, outside in sections %}<h2>{{ d.name or (d.key|mask) }} <span class="mute">· {{ rows|length }} boxes</span>
+<a style="font-weight:400;font-size:13px" href="/export/driver/{{ d.id }}.xlsx?period={{ period_text }}">Download Excel</a></h2>
+<table><tr><th>#</th><th>Date</th><th>Container</th><th>Size</th><th>Trip from</th><th>Customer</th><th class="num">Trip</th><th class="num">Amount</th><th>Vessel</th><th>Status</th><th>Check</th></tr>
+{% for r in rows %}<tr><td>{{ r.n }}</td><td>{{ r.when.strftime('%d-%b-%y %H:%M') }}</td><td><a href="/containers/{{ r.container[:11] }}">{{ r.container }}</a></td><td>{{ r.size_label }}</td>
+<td>{{ r.route }}</td><td>{{ r.customer }}</td><td class="num">{{ r.trip_no }}</td><td class="num">{{ r.amount|money if r.amount is not none else '' }}</td><td>{{ r.vessel }}</td><td>{{ r.status }}</td>
+<td>{% if r.check == 'OK' %}<span class="flag st-ok">OK</span>{% else %}<a href="/review/{{ r.movement_id }}"><span class="flag st-review">{{ r.check }}</span></a>{% endif %}</td></tr>{% endfor %}</table>
+{% if outside %}<p class="mute">{{ outside|length }} box(es) dated outside this period were left out: {% for o in outside %}<a href="/review/{{ o.id }}">{{ o.container_no }}</a> {% endfor %}</p>{% endif %}
+{% else %}<div class="card">No drivers match.</div>{% endfor %}{% endblock %}

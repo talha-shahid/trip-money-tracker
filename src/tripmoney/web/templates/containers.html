@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Containers{% endblock %}
+{% block body %}<h1>Containers</h1>
+<form class="row" method="get" action="/containers"><input type="text" name="q" value="{{ q }}" placeholder="container no, customer, vessel or EIR no" style="width:360px"><button>Search</button></form>
+{% if q %}<h2>{{ found|length }} found</h2>
+{% if found %}<table><tr><th>Container</th><th>Now</th><th>Last event</th><th>Customer</th><th>Events</th></tr>
+{% for h in found %}<tr><td><a href="/containers/{{ h.container_no }}">{{ h.container_no }}</a></td><td>{{ h.current }}</td>
+<td>{{ h.last.when.strftime('%d %b %Y %H:%M') }} {{ h.last.kind }}</td><td>{{ h.last.customer }}</td><td>{{ h.events|length }}</td></tr>{% endfor %}</table>{% endif %}
+{% else %}<h2>In the depot now <span class="mute">({{ inventory|length }}, oldest first)</span></h2>
+{% if inventory %}<table><tr><th>Container</th><th class="num">Days</th><th>Empty/Full</th><th>Size</th><th>Customer</th><th>In since</th></tr>
+{% for h, days in inventory %}<tr><td><a href="/containers/{{ h.container_no }}">{{ h.container_no }}</a></td><td class="num">{{ '%.1f'|format(days) }}</td>
+<td>{{ (h.last.status or '')|title }}</td><td>{{ h.last.size_ft or '' }}</td><td>{{ h.last.customer }}</td><td>{{ h.last.when.strftime('%d %b %Y %H:%M') }}</td></tr>{% endfor %}</table>
+<p class="mute">A box counts as in the depot when its latest scanned event is an IN. Boxes whose OUT page was not scanned will still show here.</p>
+{% else %}<div class="card">Nothing in the depot according to the scans read so far.</div>{% endif %}{% endif %}{% endblock %}

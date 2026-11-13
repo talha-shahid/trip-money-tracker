@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% block title %}Add a box{% endblock %}
+{% block body %}<h1>Add a box by hand</h1>
+<p class="mute">For a box whose scan is missing or unreadable. It is checked strictly (container check digit, no duplicates), priced at once and marked approved. Everything is recorded in the audit trail.</p>
+{% if error %}<div class="msg bad">{{ error }}</div>{% endif %}
+<form class="card" method="post" action="/movements/new"><div class="fields">
+<div><label>Container no *</label><input type="text" name="container_no" value="{{ values.get('container_no','') }}" required></div>
+<div><label>Date / time *</label><input type="datetime-local" name="occurred_at" value="{{ values.get('occurred_at','') }}" required></div>
+<div><label>Direction *</label><select name="direction" required><option value=""></option>
+<option value="JIP-MLS" {% if values.get('direction') == 'JIP-MLS' %}selected{% endif %}>IN: port to depot (JIP-MLS)</option>
+<option value="MLS-JIP" {% if values.get('direction') == 'MLS-JIP' %}selected{% endif %}>OUT: depot to port (MLS-JIP)</option></select></div>
+<div><label>Empty / full *</label><select name="status" required><option value=""></option>
+<option value="EMPTY" {% if values.get('status') == 'EMPTY' %}selected{% endif %}>Empty</option><option value="FULL" {% if values.get('status') == 'FULL' %}selected{% endif %}>Full</option></select></div>
+<div><label>Size *</label><select name="size_ft" required><option value=""></option>{% for z in (20, 40, 45) %}<option value="{{ z }}" {% if values.get('size_ft') == z|string %}selected{% endif %}>{{ z }}'</option>{% endfor %}</select></div>
+<div><label>Type</label><select name="container_type">{% for t in types %}<option value="{{ t }}" {% if values.get('container_type') == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+<div><label>Driver *</label><select name="driver_id" required><option value=""></option>{% for d in drivers %}<option value="{{ d.id }}" {% if values.get('driver_id') == d.id|string %}selected{% endif %}>{{ d.name or (d.key|mask) }}</option>{% endfor %}</select></div>
+<div><label>Truck</label><input type="text" name="truck" value="{{ values.get('truck','') }}"></div>
+<div><label>Customer</label><input type="text" name="customer" value="{{ values.get('customer','') }}"></div>
+<div><label>Vessel</label><input type="text" name="vessel" value="{{ values.get('vessel','') }}"></div>
+<div><label>Booking no (helps pair 20' boxes)</label><input type="text" name="booking_no" value="{{ values.get('booking_no','') }}"></div>
+<div><label>EIR no</label><input type="text" name="eir_no" value="{{ values.get('eir_no','') }}"></div>
+<div><label>Seal no</label><input type="text" name="seal_no" value="{{ values.get('seal_no','') }}"></div>
+<div><label>Remarks</label><input type="text" name="remarks" value="{{ values.get('remarks','') }}"></div></div>
+<div class="row" style="margin-top:14px"><button class="good">Add box</button><a class="btn secondary" href="/review">Cancel</a></div></form>{% endblock %}

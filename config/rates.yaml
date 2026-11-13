@@ -1,0 +1,82 @@
+# Trip-money rate table (SPEC-LOG-2026, reconciled against the MAMAS trip sheet).
+# Rules are evaluated top to bottom; the FIRST match wins (spec: "sequentially").
+# Change rates here, not in code. Add effective_from / effective_to for rate changes.
+
+version: "2026-11-v1"
+currency: SAR            # ASSUMED (Saudi depot); not stated in the spec. Confirm.
+pay_period_start_day: 10 # period runs 10th -> 9th of next month (from the linked workbook name)
+pairing_max_gap_minutes: 60  # two 20' empties count as one pair if printed within this gap
+
+rules:
+  # Direction comes from the EIR: OUT = depot -> port (MLS-JIP), IN = port -> depot (JIP-MLS).
+  - id: MLS-JIP-FULL
+    route_code: "MLS-JIP,OW,FUL"
+    system_code: MG-JIP
+    spec_code: "$MG-JIP"
+    direction: MLS-JIP
+    status: FULL
+    size_ft: any
+    amount: 70
+    unit: container
+    verified: true
+    note: Matches spec row 1 and the sheet (20' and 40' fulls are both 70).
+
+  - id: JIP-MLS-FULL
+    route_code: "JIP-MLS,OW,FUL"
+    system_code: JIP-MLS-OW-FULL
+    spec_code: "$JIP-mls-ow.Full"
+    direction: JIP-MLS
+    status: FULL
+    size_ft: any
+    amount: 70
+    unit: container
+    verified: true
+    note: Matches spec row 5 and the sheet.
+
+  - id: MLS-JIP-MT2
+    route_code: "MLS-JIP,OW,MT2"
+    system_code: MLS-JIP-MT2
+    spec_code: "$MLS-TIP-MI2"
+    direction: MLS-JIP
+    status: EMPTY
+    size_ft: 20
+    amount: 57
+    unit: pair
+    verified: true
+    note: >
+      Spec writes "MLS-TIP-MI2" (typo). In the sheet this is 20' empties, paid ONCE
+      per pair of boxes (second box of the pair gets trip 0).
+
+  - id: MLS-JIP-MT4
+    route_code: "MLS-JIP,OW,MT4"
+    system_code: MT4
+    spec_code: "$MT4"
+    direction: MLS-JIP
+    status: EMPTY
+    size_ft: 40
+    amount: 56
+    unit: container
+    verified: true
+    note: Spec assigns MT4 to 20'; the sheet applies it to 40' empties (incl. reefers). Sheet wins.
+
+  - id: JIP-MLS-MTY
+    route_code: "JIP-MLS,OW,MTY"   # route string assumed, following the sheet's naming pattern
+    system_code: MLS-OW-MTY
+    spec_code: "$MLS-OW-MTY"
+    direction: JIP-MLS
+    status: EMPTY
+    size_ft: any
+    amount: 59
+    unit: container
+    verified: false
+    note: Only in the spec; no example in the sheet, so flagged RATE_UNVERIFIED.
+
+# Container-type abbreviations shown in the trip sheet's "Cont Size" column (e.g. "GPD | 20").
+# GPD / R / OT come from the MAMAS sheet; the others are assumed. Edit to match your own codes.
+type_codes:
+  GP: GPD
+  REEFER: R
+  OPEN_TOP: OT
+  TANK: TK
+  FLAT_RACK: FR
+  HC: HC

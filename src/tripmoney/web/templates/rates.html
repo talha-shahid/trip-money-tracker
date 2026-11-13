@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}Rates{% endblock %}
+{% block body %}<h1>Trip rates <span class="mute">version {{ version }}</span></h1>
+<p class="mute">The rules are checked top to bottom; the first match wins. To change a rate, edit <b>config/rates.yaml</b> (run <b>tripmoney init</b> once to create it) and restart; then run <b>tripmoney reprice</b>.</p>
+<table><tr><th>#</th><th>Route code</th><th>Direction</th><th>Status</th><th>Size</th><th class="num">Amount{% if currency %} ({{ currency }}){% endif %}</th><th>Paid per</th><th>Confirmed?</th><th>Note</th></tr>
+{% for r in rules %}<tr><td>{{ loop.index }}</td><td><b>{{ r.route_code }}</b><div class="mute">{{ r.system_code }}</div></td>
+<td>{{ r.direction.value if r.direction else 'any' }}</td><td>{{ r.status.value|title if r.status else 'any' }}</td><td>{{ (r.size_ft ~ "'") if r.size_ft else 'any' }}</td>
+<td class="num">{{ r.amount|money }}</td><td>{{ 'pair of boxes' if r.unit == 'pair' else 'box' }}</td>
+<td>{% if r.verified %}<span class="ok">yes</span>{% else %}<span class="flag warn">spec only</span>{% endif %}</td><td class="mute">{{ r.note }}</td></tr>{% endfor %}</table>
+<h2>Other settings</h2><table style="max-width:520px"><tr><td>Pay period starts on day</td><td>{{ settings.pay_period_start_day }} of the month</td></tr>
+<tr><td>Two 20' empties count as a pair if printed within</td><td>{{ settings.pairing_max_gap_minutes }} minutes (same driver, truck and booking)</td></tr></table>{% endblock %}

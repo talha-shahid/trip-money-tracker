@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Audit{% endblock %}
+{% block body %}<h1>Audit trail <span class="mute">(latest 300)</span></h1>
+<table><tr><th>When</th><th>Who</th><th>Action</th><th>On</th><th>Detail</th></tr>
+{% for r in rows %}<tr><td>{{ r.at.strftime('%Y-%m-%d %H:%M:%S') if r.at else '' }}</td><td>{{ r.actor }}</td><td>{{ r.action }}</td><td>{{ r.entity }} {{ r.entity_id or '' }}</td><td class="mute">{{ r.detail }}</td></tr>
+{% else %}<tr><td colspan="5">Nothing recorded yet.</td></tr>{% endfor %}</table>{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Uploads{% endblock %}
+{% block head %}{% if running %}<meta http-equiv="refresh" content="3">{% endif %}{% endblock %}
+{% block body %}<h1>Uploads</h1>
+{% if jobs %}<table><tr><th>#</th><th>File</th><th>Status</th><th>Progress</th><th>Result</th></tr>
+{% for j in jobs %}<tr><td>{{ j.id }}</td><td>{{ j.filename }}</td><td>{{ j.status }}</td>
+<td>{% if j.total %}{{ j.page }} / {{ j.total }} pages{% endif %}</td><td>{{ j.message }}</td></tr>{% endfor %}</table>
+{% if running %}<p class="mute">Reading in the background; this page refreshes by itself.</p>{% endif %}
+{% else %}<div class="card">Nothing uploaded in this session. Use the upload box on the <a href="/">Dashboard</a>.</div>{% endif %}
+<p><a class="btn secondary" href="/">Back to dashboard</a> <a class="btn" href="/review">Go to review</a></p>{% endblock %}
